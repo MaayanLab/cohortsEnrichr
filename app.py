@@ -25,8 +25,13 @@ df_enrich = pd.read_csv(
     sep='\t'
 )
 
-app = dash.Dash(__name__, meta_tags=[
-                {"name": "viewport", "content": "width=device-width"}])
+app = dash.Dash(
+    __name__,
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width"}
+    ],
+    routes_pathname_prefix=os.environ.get('PREFIX', '')
+)
 auth = dash_auth.BasicAuth(
     app,
     json.loads(os.environ.get('CREDENTIALS', '{"admin":"admin"}'))

@@ -10,6 +10,7 @@ ADD app.py /app/app.py
 ENV CREDENTIALS='{"user":"pass"}'
 ENV HOST="0.0.0.0"
 ENV DEBUG="false"
+ENV PREFIX=""
 
 ENV PORT="80"
 EXPOSE 80
