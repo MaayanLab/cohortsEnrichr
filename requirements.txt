@@ -1,0 +1,6 @@
+dash
+dash_auth
+dash_table
+pandas
+python-dotenv
+requests
