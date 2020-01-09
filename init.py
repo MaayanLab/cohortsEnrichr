@@ -81,7 +81,7 @@ df['Symbol'] = df['Feature Name'].map(lambda s: ncbi_lookup.get(s.upper()))
 
 # Get top Genes for each cluster
 top_genes = {}
-for cluster in map(str, range(1, 10+1)):
+for cluster in df_clustered_tsne['Cluster'].unique():
   fc_col = 'Cluster %s Log2 fold change' % (cluster)
   p_col = 'Cluster %s Adjusted p value' % (cluster)
   # significant and positive fold change sorted by p value
