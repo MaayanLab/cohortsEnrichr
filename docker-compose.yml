@@ -2,7 +2,7 @@ version: '3'
 services:
   app:
     build: .
-    image: maayanlab/10x-genomics-dashboard:latest
+    image: maayanlab/scenrichr:latest
     env_file: .env
     ports:
       - 8051:80
