@@ -16,17 +16,17 @@ pip3 install -r requirements.txt
 ```bash
 source venv/bin/activate
 mkdir -p data
-python3 init.py 10x_output_directory/outs/analysis
+python3 init.py 10x_output_directory/outs/analysis data
 ```
 
 ## Usage
 ### Run application locally
 ```bash
 source venv/bin/activate
-python3 app.py
+DATA=data python3 app.py
 ```
 
 ### Run application with docker-compose
 ```bash
-docker-compose up
+DATA=data docker-compose up
 ```

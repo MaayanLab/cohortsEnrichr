@@ -7,4 +7,4 @@ services:
     ports:
       - 8051:80
     volumes:
-      - ./data:/data
+      - ${DATA:-./data}:/data

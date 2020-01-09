@@ -1,6 +1,10 @@
+import os
 import sys
 import pandas as pd
 from collections import OrderedDict
+
+base_path = sys.argv[1]
+output = sys.argv[2]
 
 n_genes = 250
 top_n_results = 5
@@ -14,8 +18,6 @@ useful_libs = OrderedDict([
 ])
 
 # Load data
-base_path = sys.argv[1]
-
 df = pd.read_csv(base_path + '/diffexp/graphclust/differential_expression.csv')
 df_tsne = pd.read_csv(base_path + '/tsne/2_components/projection.csv')
 df_pca = pd.read_csv(base_path + '/pca/10_components/projection.csv')
@@ -130,10 +132,24 @@ for cluster, (up_link, dn_link) in enrichr_links.items():
           results['cluster'] = cluster
           all_results.append(results)
         except:
-          print('{}: {} {} {} cluster {} failed, continuing'.format(link, library, category, direction, cluster))
+          print('{}: {} {} {} cluster {} failed, continuing'.format(link, library, category, link_type, cluster))
 
 df_all_results = pd.concat(all_results)
 
-df.to_csv('data/df.tsv', sep='\t')
-df_clustered_tsne.to_csv('data/df_tsne.tsv', sep='\t')
-df_all_results.to_csv('data/df_enrich.tsv', sep='\t')
+os.makedirs(output, exist_ok=True)
+df.to_csv(
+  os.path.join(output, 'df.tsv'),
+  sep='\t',
+  index=None
+)
+df_clustered_tsne.to_csv(
+  os.path.join(output, 'df_tsne.tsv'),
+  sep='\t',
+  index=None
+)
+df_all_results.to_csv(
+  os.path.join(output, 'df_enrich.tsv'),
+  sep='\t',
+  index=None
+)
+
