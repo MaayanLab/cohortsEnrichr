@@ -3,4 +3,6 @@ dash_auth
 dash_table
 pandas
 python-dotenv
+pyyaml
 requests
+scipy
