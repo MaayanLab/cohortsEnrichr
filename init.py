@@ -8,13 +8,12 @@ output = sys.argv[2]
 
 n_genes = 250
 top_n_results = 5
-# transcription: archs4 coexpression, encode & chEA
-# pathways: wikipathways ()
-# cell types: human gene atlas, mouse gene atlas, archs4 tissues
 useful_libs = OrderedDict([
-  ('cell_type', ['Human_Gene_Atlas', 'Mouse_Gene_Atlas', 'ARCHS4_Tissues']),
-  ('pathways', ['WikiPathways_2019_Mouse', 'WikiPathways_2019_Human']),
-  ('transcription', ['ARCHS4_TFs_Coexp', 'ENCODE_and_ChEA_Consensus_TFs_from_ChIP-X']),
+  ('Diseases', ['UK_Biobank_GWAS_v1', 'GWAS_Catalog_2019', 'DisGeNET']),
+  ('Phenotypes', ['MGI_Mammalian_Phenotype_Level_4_2019', 'Human_Phenotype_Ontology']),
+  ('Cell Type', ['Human_Gene_Atlas', 'Mouse_Gene_Atlas', 'ARCHS4_Tissues']),
+  ('Pathways', ['WikiPathways_2019_Mouse', 'WikiPathways_2019_Human']),
+  ('Transcription', ['ARCHS4_TFs_Coexp', 'ENCODE_and_ChEA_Consensus_TFs_from_ChIP-X']),
 ])
 
 # Load data
