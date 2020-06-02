@@ -1,6 +1,7 @@
 dash
 dash_auth
 dash_table
+git+git://github.com/Maayanlab/react-scatter-board.git
 pandas
 python-dotenv
 pyyaml

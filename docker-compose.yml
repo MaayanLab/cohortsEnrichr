@@ -1,9 +1,13 @@
 version: '3'
 services:
   app:
-    build: .
-    image: maayanlab/scenrichr:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: maayanlab/cohortsenrichr:0.0.2
     env_file: .env
+    environment:
+      - PREFIX=${PREFIX:-/cohortsEnrichr}
     ports:
       - 8051:80
     volumes:
