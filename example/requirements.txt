@@ -1,0 +1,9 @@
+git+git://github.com/Maayanlab/maayanlab-bioinformatics.git
+ipython
+matplotlib
+numpy
+pandas
+plotly
+seaborn
+sklearn
+umap-learn
