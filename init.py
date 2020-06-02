@@ -18,7 +18,7 @@ useful_libs = OrderedDict([
 
 # Load data
 df = pd.read_csv(base_path + '/diffexp/graphclust/differential_expression.csv')
-df_tsne = pd.read_csv(base_path + '/tsne/2_components/projection.csv')
+df_umap = pd.read_csv(base_path + '/umap/2_components/projection.csv')
 df_pca = pd.read_csv(base_path + '/pca/10_components/projection.csv')
 df_clusters = pd.read_csv(base_path + '/clustering/graphclust/clusters.csv')
 df_clusters['Cluster'] = df_clusters['Cluster'].astype(str)
@@ -57,7 +57,7 @@ def enrichr_get_top_results(userListId, bg, enrichr_link='https://amp.pharm.mssm
 
 
 # Merge data
-df_clustered_tsne = pd.merge(left=df_clusters, left_on='Barcode', right=df_tsne, right_on='Barcode')
+df_clustered_umap = pd.merge(left=df_clusters, left_on='Barcode', right=df_umap, right_on='Barcode')
 df_clustered_pca = pd.merge(left=df_clusters, left_on='Barcode', right=df_pca, right_on='Barcode')
 
 # Grab ncbi symbols
@@ -80,19 +80,28 @@ df['Symbol'] = df['Feature Name'].map(lambda s: ncbi_lookup.get(s.upper()))
 
 # Get top Genes for each cluster
 top_genes = {}
-for cluster in df_clustered_tsne['Cluster'].unique():
+for cluster in df_clustered_umap['Cluster'].unique():
   fc_col = 'Cluster %s Log2 fold change' % (cluster)
   p_col = 'Cluster %s Adjusted p value' % (cluster)
-  # significant and positive fold change sorted by p value
-  up_genes = df.loc[
-    df[((df[p_col] < 0.05) & (df[fc_col] > 0))][p_col].sort_values().index,
-    'Symbol'
-  ].iloc[:n_genes].dropna().values
-  # significant and negative fold change sorted by p value
-  dn_genes = df.loc[
-    df[((df[p_col] < 0.05) & (df[fc_col] < 0))][p_col].sort_values().index,
-    'Symbol'
-  ].iloc[:n_genes].dropna().values
+  cd_col = 'Cluster %s CD' % (cluster)
+  if p_col in df.columns:
+    # significant and positive fold change sorted by p value
+    up_genes = df.loc[
+      df[((df[p_col] <= 0.05) & (df[fc_col] > 0))][p_col].sort_values().index,
+      'Symbol'
+    ].iloc[:n_genes].dropna().values
+    # significant and negative fold change sorted by p value
+    dn_genes = df.loc[
+      df[((df[p_col] <= 0.05) & (df[fc_col] < 0))][p_col].sort_values().index,
+      'Symbol'
+    ].iloc[:n_genes].dropna().values
+  elif cd_col in df.columns:
+    # top up genes
+    up_genes = df.loc[df[cd_col].sort_values(ascending=False).iloc[:n_genes].index, 'Symbol'].values
+    # top down genes
+    dn_genes = df.loc[df[cd_col].sort_values(ascending=True).iloc[:n_genes].index, 'Symbol'].values
+  else:
+    raise Exception('Cant find col for cluster')
   # save results
   top_genes[cluster] = (up_genes, dn_genes)
 
@@ -141,8 +150,8 @@ df.to_csv(
   sep='\t',
   index=None
 )
-df_clustered_tsne.to_csv(
-  os.path.join(output, 'df_tsne.tsv'),
+df_clustered_umap.to_csv(
+  os.path.join(output, 'df_umap.tsv'),
   sep='\t',
   index=None
 )
@@ -151,4 +160,3 @@ df_all_results.to_csv(
   sep='\t',
   index=None
 )
-

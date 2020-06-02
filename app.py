@@ -31,26 +31,36 @@ df = pd.read_csv(
     os.path.join(DATA, 'df.tsv'),
     sep='\t'
 )
-df_tsne = pd.read_csv(
-    os.path.join(DATA, 'df_tsne.tsv'),
+df.index = df.index.astype(str)
+df.columns = df.columns.astype(str)
+df_umap = pd.read_csv(
+    os.path.join(DATA, 'df_umap.tsv'),
     sep='\t',
     index_col='Barcode',
 )
+df_umap.index = df_umap.index.astype(str)
+df_umap.columns = df_umap.columns.astype(str)
 df_enrich = pd.read_csv(
     os.path.join(DATA, 'df_enrich.tsv'),
     sep='\t'
 )
+df_enrich.index = df_enrich.index.astype(str)
+df_enrich.columns = df_enrich.columns.astype(str)
 df_metadata = pd.read_csv(
     os.path.join(DATA, 'metadata.csv'),
     sep=',',
     index_col='Barcode',
 )
+df_metadata.index = df_metadata.index.astype(str)
+df_metadata.columns = df_metadata.columns.astype(str)
 df_cluster_aucs = pd.read_csv(
     os.path.join(DATA, 'cluster_aucs.csv'),
     sep=',',
     index_col=0,
-).drop(['orig_id', 'pid', 'nebnext_index_read', 'date', 'time_point'], axis=0)
-df_cluster_aucs.loc[:,:] = zscore(df_cluster_aucs)
+)
+df_cluster_aucs.index = df_cluster_aucs.index.astype(str)
+df_cluster_aucs.columns = df_cluster_aucs.columns.astype(str)
+# df_cluster_aucs.loc[:,:] = zscore(df_cluster_aucs)
 
 meta_cols = [
     'Barcode',
@@ -58,12 +68,12 @@ meta_cols = [
     *df_metadata.columns
 ]
 
-def figure(pid=None):
+def figure(Barcode=None):
     data = [
         dict(
             Barcode=barcode,
-            x=record['TSNE-1'],
-            y=record['TSNE-2'],
+            x=record['UMAP-1'],
+            y=record['UMAP-2'],
             label=yaml_dumps(
                 dict(
                     Barcode=str(barcode),
@@ -72,7 +82,7 @@ def figure(pid=None):
             ).replace('\n', '<br>'),
             **record.to_dict(),
         )
-        for barcode, record in pd.merge(left=df_tsne, left_index=True, right=df_metadata, right_index=True).iterrows()
+        for barcode, record in pd.merge(left=df_umap, left_index=True, right=df_metadata, right_index=True).iterrows()
     ]
     return data
 
@@ -127,7 +137,7 @@ app.layout = html.Div(className='row', children=[
         className='col-sm-8',
         children=[
             DashScatterBoard(
-                id='tsne',
+                id='umap',
                 data=figure(),
                 shapeKey='Cluster',
                 colorKey='Cluster',
@@ -332,11 +342,11 @@ patientData = {}
         Output('data-table', 'data'),
         Output('metadata-table', 'data'),
         Output('summary-table', 'data'),
-        Output('tsne', 'data'),
+        Output('umap', 'data'),
     ],
     [
-        Input('tsne', 'clickData'),
-        Input('tsne', 'hoverData'),
+        Input('umap', 'clickData'),
+        Input('umap', 'hoverData'),
     ]
 )
 def update_click(clickData, hoverData):
@@ -362,10 +372,10 @@ def update_click(clickData, hoverData):
     pointData = yaml_loads(evt['label'].replace('<br>', '\n'))
     # Get patient data
     if not lock:
-        pid = df_metadata.loc[pointData['Barcode'], 'pid']
-        patientData['pid'] = pid
+        Barcode = pointData['Barcode']
+        patientData['Barcode'] = Barcode
     else:
-        pid = patientData.get('pid')
+        Barcode = patientData.get('Barcode')
     # Get cluster
     cluster = pointData['Cluster']
     m = dict(
@@ -393,23 +403,23 @@ def update_click(clickData, hoverData):
         matches = clusterData['matches']
     if matches.size == 0:
         return [
-            'Cluster {} ({} samples)'.format(cluster, df_tsne[df_tsne['Cluster'] == cluster].shape[0]),
+            'Cluster {} ({} samples)'.format(cluster, df_umap[df_umap['Cluster'] == cluster].shape[0]),
             'No data for this cluster',
             [],
             metadata,
             summary,
-            figure(pid),
+            figure(Barcode),
         ]
     # Update
     link = matches.iloc[0]['link']
     data = matches.to_dict('records')
     return [
-        'Cluster {} ({} samples)'.format(cluster, df_tsne[df_tsne['Cluster'] == cluster].shape[0]),
+        'Cluster {} ({} samples)'.format(cluster, df_umap[df_umap['Cluster'] == cluster].shape[0]),
         ['Enrichr Link for Cluster ', html.A(link, href=link)],
         data,
         metadata,
         summary,
-        figure(pid),
+        figure(Barcode),
     ]
 
 if __name__ == "__main__":
